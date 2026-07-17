@@ -22,6 +22,7 @@ export type Task = {
   due_at: string | null;
   created_at: string;
   completed_at: string | null;
+  category: string;
 };
 
 export type Note = {
@@ -30,3 +31,29 @@ export type Note = {
   pinned: boolean;
   created_at: string;
 };
+
+export type Habit = {
+  id: number;
+  name: string;
+  category: string;
+  archived: boolean;
+  created_at: string;
+};
+
+export type HabitLog = {
+  id: number;
+  habit_id: number;
+  log_date: string; // YYYY-MM-DD
+  created_at: string;
+};
+
+// Shared list so the category dropdown/filter stay consistent everywhere.
+// "Custom" categories typed by the user still work fine — this is just the
+// quick-pick list for the form and filter tabs.
+export const TASK_CATEGORIES = [
+  "General",
+  "Business",
+  "HYROX",
+  "Baptism",
+  "Birthday",
+] as const;

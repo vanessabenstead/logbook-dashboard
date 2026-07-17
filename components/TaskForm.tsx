@@ -1,13 +1,14 @@
 import { createTask } from "@/lib/actions";
+import { TASK_CATEGORIES } from "@/lib/db";
 
-export default function TaskForm() {
+export default function TaskForm({ defaultCategory }: { defaultCategory?: string }) {
   return (
     <form
       action={createTask}
-      className="entry-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-end sm:gap-3"
+      className="entry-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:flex-wrap sm:items-end sm:gap-3"
       style={{ ["--tick" as string]: "#4f9d91" }}
     >
-      <div className="flex-1">
+      <div className="flex-1 basis-full sm:basis-auto">
         <label className="mb-1 block font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
           New entry
         </label>
@@ -19,6 +20,22 @@ export default function TaskForm() {
         />
       </div>
       <div className="sm:w-40">
+        <label className="mb-1 block font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+          Category
+        </label>
+        <select
+          name="category"
+          defaultValue={defaultCategory ?? "General"}
+          className="w-full rounded border border-line bg-ink px-3 py-2 text-sm text-paper focus:border-amber focus:outline-none"
+        >
+          {TASK_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="sm:w-36">
         <label className="mb-1 block font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
           Priority
         </label>

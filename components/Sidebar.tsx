@@ -3,7 +3,8 @@ import Link from "next/link";
 const links = [
   { href: "/", label: "Today", mark: "01" },
   { href: "/tasks", label: "Tasks", mark: "02" },
-  { href: "/notes", label: "Notes", mark: "03" },
+  { href: "/habits", label: "Habits", mark: "03" },
+  { href: "/notes", label: "Notes", mark: "04" },
 ];
 
 export default function Sidebar() {

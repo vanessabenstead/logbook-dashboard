@@ -65,7 +65,22 @@ body {
   border-color: #4f9d91;
 }
 
-.checkbox:checked::after {
+.checkbox-visual {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #4b5468;
+  border-radius: 3px;
+  display: inline-grid;
+  place-content: center;
+  flex-shrink: 0;
+}
+
+.checkbox-visual.checked {
+  background: #4f9d91;
+  border-color: #4f9d91;
+}
+
+.checkbox-visual.checked::after {
   content: "";
   width: 5px;
   height: 9px;
@@ -73,7 +88,6 @@ body {
   border-width: 0 2px 2px 0;
   transform: rotate(45deg) translate(-1px, -1px);
 }
-
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

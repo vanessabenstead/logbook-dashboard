@@ -23,7 +23,7 @@ export default function TaskItem({ task, index }: { task: Task; index: number })
 
       <form action={toggleTask.bind(null, task.id, done)} className="pt-1">
         <button type="submit" aria-label={done ? "Mark as open" : "Mark as done"}>
-          <input type="checkbox" readOnly checked={done} className="checkbox" />
+          <span className={`checkbox-visual ${done ? "checked" : ""}`} aria-hidden="true" />
         </button>
       </form>
 
@@ -35,6 +35,9 @@ export default function TaskItem({ task, index }: { task: Task; index: number })
           <p className="mt-1 text-xs text-muted">{task.notes}</p>
         )}
         <div className="mt-2 flex flex-wrap items-center gap-3 font-mono text-[10px] uppercase tracking-wide text-muted">
+          <span className="rounded border border-line px-1.5 py-0.5 text-muted">
+            {task.category}
+          </span>
           <span style={{ color: PRIORITY_COLOR[task.priority] }}>
             {PRIORITY_LABEL[task.priority]}
           </span>

@@ -1,4 +1,0 @@
-# Neon Postgres connection string.
-# Get this from your Neon project dashboard -> Connection Details.
-# Use the "pooled" connection string for the app at runtime.
-DATABASE_URL="postgresql://neondb_owner:npg_EFDfRw3Jet4U@ep-patient-butterfly-at8njyfu-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
