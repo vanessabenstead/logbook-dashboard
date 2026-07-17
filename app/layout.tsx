@@ -25,6 +25,23 @@ const jbmono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Logbook — Personal Dashboard",
   description: "A daily log for tasks and notes.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Logbook",
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-icon.png",
+  },
+};
+
+export const viewport = {
+  themeColor: "#14181f",
 };
 
 export default function RootLayout({
