@@ -169,7 +169,7 @@ export default function HabitGrid({
                   </button>
                 </form>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-1">
                 {days.map((d) => {
                   const iso = isoDate(d);
                   const logged = loggedSet.has(`${h.id}:${iso}`);
@@ -180,7 +180,7 @@ export default function HabitGrid({
                       type="button"
                       onClick={() => handleToggle(h.id, iso)}
                       aria-label={`Toggle ${h.name} on ${iso}`}
-                      className="flex w-11 flex-col items-center gap-1 rounded py-1"
+                      className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded py-1"
                     >
                       <span
                         className={`font-mono text-[9px] uppercase tracking-wide ${
