@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const links = [
+export const NAV_LINKS = [
   { href: "/", label: "Today", mark: "01" },
   { href: "/tasks", label: "Tasks", mark: "02" },
   { href: "/habits", label: "Habits", mark: "03" },
@@ -20,7 +20,7 @@ export default function Sidebar() {
           </p>
         </div>
         <nav className="flex flex-col gap-1">
-          {links.map((l) => (
+          {NAV_LINKS.map((l) => (
             <Link
               key={l.href}
               href={l.href}
