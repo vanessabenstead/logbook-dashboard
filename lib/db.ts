@@ -58,3 +58,24 @@ export const TASK_CATEGORIES = [
   "Baptism",
   "Birthday",
 ] as const;
+
+export type Recipe = {
+  id: number;
+  name: string;
+  notes: string | null;
+  created_at: string;
+};
+
+export type RecipeIngredient = {
+  id: number;
+  recipe_id: number;
+  line: string;
+  sort_order: number;
+};
+
+export type MealPlanEntry = {
+  id: number;
+  plan_date: string;
+  recipe_id: number;
+  created_at: string;
+};

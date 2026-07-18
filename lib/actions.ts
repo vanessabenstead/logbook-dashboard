@@ -121,3 +121,46 @@ export async function toggleHabitLog(habitId: number, dateStr: string, currently
   }
   revalidatePath("/habits");
 }
+
+// ---------- Meal planning ----------
+
+export async function createRecipe(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return;
+  const ingredientsRaw = String(formData.get("ingredients") ?? "");
+
+  const lines = ingredientsRaw
+    .split("\n")
+    .map((l) => l.replace(/^[-*•]\s*/, "").trim())
+    .filter((l) => l.length > 0);
+
+  const rows = await sql`insert into recipes (name) values (${name}) returning id`;
+  const recipeId = rows[0].id as number;
+
+  for (let i = 0; i < lines.length; i++) {
+    await sql`
+      insert into recipe_ingredients (recipe_id, line, sort_order)
+      values (${recipeId}, ${lines[i]}, ${i})
+    `;
+  }
+  revalidatePath("/meals");
+}
+
+export async function deleteRecipe(id: number) {
+  await sql`delete from recipes where id = ${id}`;
+  revalidatePath("/meals");
+}
+
+export async function setMealPlanEntry(planDate: string, recipeId: number) {
+  await sql`
+    insert into meal_plan_entries (plan_date, recipe_id)
+    values (${planDate}, ${recipeId})
+    on conflict (plan_date) do update set recipe_id = excluded.recipe_id
+  `;
+  revalidatePath("/meals");
+}
+
+export async function clearMealPlanEntry(planDate: string) {
+  await sql`delete from meal_plan_entries where plan_date = ${planDate}`;
+  revalidatePath("/meals");
+}

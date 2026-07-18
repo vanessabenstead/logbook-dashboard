@@ -49,3 +49,29 @@ create table if not exists habit_logs (
 
 create index if not exists habit_logs_habit_idx on habit_logs (habit_id);
 create index if not exists habit_logs_date_idx on habit_logs (log_date);
+
+-- Meal planning: a rotation of go-to recipes, each with a free-form list of
+-- ingredient lines, plus a weekly plan that assigns one recipe per day.
+create table if not exists recipes (
+  id          bigserial primary key,
+  name        text not null,
+  notes       text,
+  created_at  timestamptz not null default now()
+);
+
+create table if not exists recipe_ingredients (
+  id          bigserial primary key,
+  recipe_id   bigint not null references recipes(id) on delete cascade,
+  line        text not null,
+  sort_order  smallint not null default 0
+);
+
+create table if not exists meal_plan_entries (
+  id          bigserial primary key,
+  plan_date   date not null unique,
+  recipe_id   bigint not null references recipes(id) on delete cascade,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists recipe_ingredients_recipe_idx on recipe_ingredients (recipe_id);
+create index if not exists meal_plan_entries_date_idx on meal_plan_entries (plan_date);
