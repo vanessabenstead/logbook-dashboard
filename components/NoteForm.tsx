@@ -5,7 +5,7 @@ export default function NoteForm() {
     <form
       action={createNote}
       className="entry-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-end"
-      style={{ ["--tick" as string]: "#4f9d91" }}
+      style={{ ["--tick" as string]: "#6B7F5F" }}
     >
       <div className="flex-1">
         <label className="mb-1 block font-mono text-[10px] uppercase tracking-[0.15em] text-muted">

@@ -38,6 +38,7 @@ export type Habit = {
   category: string;
   archived: boolean;
   created_at: string;
+  weekly_target: number;
 };
 
 export type HabitLog = {

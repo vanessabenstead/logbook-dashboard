@@ -91,7 +91,15 @@ export async function createHabit(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return;
   const category = String(formData.get("category") ?? "HYROX").trim() || "HYROX";
-  await sql`insert into habits (name, category) values (${name}, ${category})`;
+  const weeklyTarget = Number(formData.get("weekly_target") ?? 7);
+  await sql`insert into habits (name, category, weekly_target) values (${name}, ${category}, ${weeklyTarget})`;
+  revalidatePath("/habits");
+}
+
+export async function updateHabit(id: number, name: string, weeklyTarget: number) {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  await sql`update habits set name = ${trimmed}, weekly_target = ${weeklyTarget} where id = ${id}`;
   revalidatePath("/habits");
 }
 

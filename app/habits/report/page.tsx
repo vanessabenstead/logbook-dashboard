@@ -92,7 +92,7 @@ export default async function HabitReportPage({
         </Link>
       </div>
 
-      <div className="entry-card px-5 py-5" style={{ ["--tick" as string]: "#e8a33d" }}>
+      <div className="entry-card px-5 py-5" style={{ ["--tick" as string]: "#8A7159" }}>
         {rows.length === 0 ? (
           <p className="text-center text-sm text-muted">No habits tracked yet.</p>
         ) : (
@@ -125,7 +125,7 @@ export default async function HabitReportPage({
       <a
         href={`/api/habits/export?month=${monthParam(year, month)}`}
         className="entry-card flex items-center justify-between px-5 py-4 text-sm text-paper transition-colors hover:border-amber"
-        style={{ ["--tick" as string]: "#4f9d91" }}
+        style={{ ["--tick" as string]: "#6B7F5F" }}
       >
         <span>Download this month as a spreadsheet file (CSV)</span>
         <span className="font-mono text-[11px] uppercase text-amber">Download ↓</span>

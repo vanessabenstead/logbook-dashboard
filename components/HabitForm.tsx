@@ -5,7 +5,7 @@ export default function HabitForm() {
     <form
       action={createHabit}
       className="entry-card flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-end"
-      style={{ ["--tick" as string]: "#e8a33d" }}
+      style={{ ["--tick" as string]: "#8A7159" }}
     >
       <div className="flex-1">
         <label className="mb-1 block font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
@@ -17,6 +17,22 @@ export default function HabitForm() {
           placeholder="e.g. BFT session, HYROX row + sled, protein target"
           className="w-full rounded border border-line bg-ink px-3 py-2 text-sm text-paper placeholder:text-muted/60 focus:border-amber focus:outline-none"
         />
+      </div>
+      <div className="sm:w-40">
+        <label className="mb-1 block font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
+          Goal / week
+        </label>
+        <select
+          name="weekly_target"
+          defaultValue={7}
+          className="w-full rounded border border-line bg-ink px-3 py-2 text-sm text-paper focus:border-amber focus:outline-none"
+        >
+          {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+            <option key={n} value={n}>
+              {n}x / week
+            </option>
+          ))}
+        </select>
       </div>
       <input type="hidden" name="category" value="HYROX" />
       <button

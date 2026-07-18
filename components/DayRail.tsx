@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import type { Task } from "@/lib/db";
 
 const PRIORITY_COLOR: Record<number, string> = {
-  1: "#c1554a",
-  2: "#e8a33d",
-  3: "#4f9d91",
+  1: "#B5654A",
+  2: "#8A7159",
+  3: "#6B7F5F",
 };
 
 function hoursOfDay(date: Date) {
@@ -36,7 +36,7 @@ export default function DayRail({ tasks }: { tasks: Task[] }) {
   const nowPct = now ? (hoursOfDay(now) / 24) * 100 : null;
 
   return (
-    <div className="entry-card px-5 py-6" style={{ ["--tick" as string]: "#e8a33d" }}>
+    <div className="entry-card px-5 py-6" style={{ ["--tick" as string]: "#8A7159" }}>
       <div className="mb-5 flex items-baseline justify-between">
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
           Watch — {today.toLocaleDateString(undefined, { weekday: "long" })}
@@ -78,7 +78,7 @@ export default function DayRail({ tasks }: { tasks: Task[] }) {
               <div
                 className="h-3 w-3 rounded-full border-2 border-ink"
                 style={{
-                  background: t.status === "done" ? "#4f9d91" : PRIORITY_COLOR[t.priority],
+                  background: t.status === "done" ? "#6B7F5F" : PRIORITY_COLOR[t.priority],
                 }}
               />
             </div>

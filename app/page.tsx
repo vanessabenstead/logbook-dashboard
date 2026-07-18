@@ -1,10 +1,17 @@
 import { sql, type Task, type Note } from "@/lib/db";
 import StatStrip from "@/components/StatStrip";
 import DayRail from "@/components/DayRail";
+import LevelCard from "@/components/LevelCard";
 import TaskItem from "@/components/TaskItem";
 import NoteItem from "@/components/NoteItem";
 
 export const dynamic = "force-dynamic";
+
+function getGreeting(hour: number) {
+  if (hour < 12) return "Good morning, Vanessa";
+  if (hour < 18) return "Good afternoon, Vanessa";
+  return "Good evening, Vanessa";
+}
 
 export default async function TodayPage() {
   const allTasks = (await sql`select * from tasks order by due_at asc nulls last`) as Task[];
@@ -33,9 +40,10 @@ export default async function TodayPage() {
             day: "numeric",
           })}
         </p>
-        <h1 className="mt-1 font-display text-3xl italic text-paper">Today's log</h1>
+        <h1 className="mt-1 font-display text-3xl italic text-paper">{getGreeting(today.getHours())}</h1>
       </header>
 
+      <LevelCard />
       <StatStrip tasks={allTasks} />
       <DayRail tasks={allTasks} />
 

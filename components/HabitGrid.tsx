@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import type { Habit, HabitLog } from "@/lib/db";
-import { toggleHabitLog, archiveHabit } from "@/lib/actions";
+import { toggleHabitLog, archiveHabit, updateHabit } from "@/lib/actions";
+import { burstConfetti } from "@/lib/confetti";
 
 function isoDate(d: Date) {
   const year = d.getFullYear();
@@ -31,14 +32,76 @@ function normalizeLogDate(value: string | Date): string {
   return String(value).slice(0, 10);
 }
 
+function StreakBadge({ streak }: { streak: number }) {
+  if (streak < 2) return null;
+  return <span className="ml-2 font-mono text-[10px] text-amber">🔥 {streak}</span>;
+}
+
+function EditHabitForm({
+  habit,
+  onCancel,
+}: {
+  habit: Habit;
+  onCancel: () => void;
+}) {
+  const [name, setName] = useState(habit.name);
+  const [target, setTarget] = useState(habit.weekly_target);
+  const [, startTransition] = useTransition();
+
+  function handleSave() {
+    startTransition(() => {
+      updateHabit(habit.id, name, target);
+    });
+    onCancel();
+  }
+
+  return (
+    <div className="flex flex-1 flex-wrap items-center gap-2">
+      <input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="min-w-0 flex-1 rounded border border-line bg-ink px-2 py-1 text-sm text-paper focus:border-amber focus:outline-none"
+        autoFocus
+      />
+      <select
+        value={target}
+        onChange={(e) => setTarget(Number(e.target.value))}
+        className="rounded border border-line bg-ink px-2 py-1 text-sm text-paper focus:border-amber focus:outline-none"
+      >
+        {[1, 2, 3, 4, 5, 6, 7].map((n) => (
+          <option key={n} value={n}>
+            {n}x/wk
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        onClick={handleSave}
+        className="rounded bg-amber px-3 py-1 font-mono text-[11px] text-ink"
+      >
+        Save
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
+        className="font-mono text-[11px] uppercase text-muted"
+      >
+        Cancel
+      </button>
+    </div>
+  );
+}
+
 export default function HabitGrid({
   habits,
   logs,
   weekStart,
+  streaks,
 }: {
   habits: Habit[];
   logs: HabitLog[];
   weekStart: string; // "YYYY-MM-DD", a Monday
+  streaks: Record<number, number>;
 }) {
   const monday = parseLocalDate(weekStart);
   const days = Array.from({ length: 7 }, (_, i) => {
@@ -55,6 +118,7 @@ export default function HabitGrid({
     () => new Set(logs.map((l) => `${l.habit_id}:${normalizeLogDate(l.log_date)}`))
   );
   const [, startTransition] = useTransition();
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const todayIso = isoDate(new Date());
 
@@ -71,6 +135,8 @@ export default function HabitGrid({
       }
       return next;
     });
+
+    if (!currentlyLogged) burstConfetti();
 
     startTransition(() => {
       toggleHabitLog(habitId, iso, currentlyLogged);
@@ -90,9 +156,9 @@ export default function HabitGrid({
       {/* Desktop / wide screens: table layout. Hidden below the md breakpoint. */}
       <div
         className="entry-card hidden overflow-x-auto px-4 py-4 md:block"
-        style={{ ["--tick" as string]: "#4f9d91" }}
+        style={{ ["--tick" as string]: "#6B7F5F" }}
       >
-        <table className="w-full min-w-[560px] table-fixed border-collapse text-sm">
+        <table className="w-full min-w-[620px] table-fixed border-collapse text-sm">
           <thead>
             <tr>
               <th className="pb-3 text-left font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
@@ -113,11 +179,21 @@ export default function HabitGrid({
           <tbody>
             {habits.map((h) => {
               const weekCount = days.filter((d) => loggedSet.has(`${h.id}:${isoDate(d)}`)).length;
+              const isEditing = editingId === h.id;
               return (
                 <tr key={h.id} className="border-t border-line">
                   <td className="py-3 pr-4 text-paper">
-                    {h.name}
-                    <span className="ml-2 font-mono text-[10px] text-muted">{weekCount}/7</span>
+                    {isEditing ? (
+                      <EditHabitForm habit={h} onCancel={() => setEditingId(null)} />
+                    ) : (
+                      <>
+                        {h.name}
+                        <span className="ml-2 font-mono text-[10px] text-muted">
+                          {weekCount}/{h.weekly_target}
+                        </span>
+                        <StreakBadge streak={streaks[h.id] ?? 0} />
+                      </>
+                    )}
                   </td>
                   {days.map((d) => {
                     const iso = isoDate(d);
@@ -126,21 +202,32 @@ export default function HabitGrid({
                       <td
                         key={iso}
                         className="cursor-pointer py-3 text-center"
-                        onClick={() => handleToggle(h.id, iso)}
+                        onClick={() => !isEditing && handleToggle(h.id, iso)}
                       >
                         <span className={`checkbox-visual mx-auto ${logged ? "checked" : ""}`} aria-hidden="true" />
                       </td>
                     );
                   })}
                   <td className="py-3 pl-2 text-right">
-                    <form action={archiveHabit.bind(null, h.id)}>
-                      <button
-                        type="submit"
-                        className="font-mono text-[10px] uppercase text-muted hover:text-rust"
-                      >
-                        Remove
-                      </button>
-                    </form>
+                    {!isEditing && (
+                      <div className="flex justify-end gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setEditingId(h.id)}
+                          className="font-mono text-[10px] uppercase text-muted hover:text-amber"
+                        >
+                          Edit
+                        </button>
+                        <form action={archiveHabit.bind(null, h.id)}>
+                          <button
+                            type="submit"
+                            className="font-mono text-[10px] uppercase text-muted hover:text-rust"
+                          >
+                            Remove
+                          </button>
+                        </form>
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
@@ -153,48 +240,69 @@ export default function HabitGrid({
       <div className="flex flex-col gap-3 md:hidden">
         {habits.map((h) => {
           const weekCount = days.filter((d) => loggedSet.has(`${h.id}:${isoDate(d)}`)).length;
+          const isEditing = editingId === h.id;
           return (
-            <div key={h.id} className="entry-card px-4 py-3" style={{ ["--tick" as string]: "#4f9d91" }}>
-              <div className="mb-3 flex items-center justify-between gap-2">
-                <p className="text-sm text-paper">
-                  {h.name}
-                  <span className="ml-2 font-mono text-[10px] text-muted">{weekCount}/7</span>
-                </p>
-                <form action={archiveHabit.bind(null, h.id)}>
-                  <button
-                    type="submit"
-                    className="shrink-0 font-mono text-[10px] uppercase text-muted hover:text-rust"
-                  >
-                    Remove
-                  </button>
-                </form>
-              </div>
-              <div className="flex gap-1">
-                {days.map((d) => {
-                  const iso = isoDate(d);
-                  const logged = loggedSet.has(`${h.id}:${iso}`);
-                  const isToday = iso === todayIso;
-                  return (
+            <div key={h.id} className="entry-card px-4 py-3" style={{ ["--tick" as string]: "#6B7F5F" }}>
+              {isEditing ? (
+                <div className="mb-3">
+                  <EditHabitForm habit={h} onCancel={() => setEditingId(null)} />
+                </div>
+              ) : (
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <p className="text-sm text-paper">
+                    {h.name}
+                    <span className="ml-2 font-mono text-[10px] text-muted">
+                      {weekCount}/{h.weekly_target}
+                    </span>
+                    <StreakBadge streak={streaks[h.id] ?? 0} />
+                  </p>
+                  <div className="flex shrink-0 gap-3">
                     <button
-                      key={iso}
                       type="button"
-                      onClick={() => handleToggle(h.id, iso)}
-                      aria-label={`Toggle ${h.name} on ${iso}`}
-                      className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded py-1"
+                      onClick={() => setEditingId(h.id)}
+                      className="font-mono text-[10px] uppercase text-muted hover:text-amber"
                     >
-                      <span
-                        className={`font-mono text-[9px] uppercase tracking-wide ${
-                          isToday ? "text-amber" : "text-muted"
-                        }`}
-                      >
-                        {d.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 2)}
-                      </span>
-                      <span className={`checkbox-visual ${logged ? "checked" : ""}`} aria-hidden="true" />
-                      <span className="font-mono text-[9px] text-muted/70">{d.getDate()}</span>
+                      Edit
                     </button>
-                  );
-                })}
-              </div>
+                    <form action={archiveHabit.bind(null, h.id)}>
+                      <button
+                        type="submit"
+                        className="font-mono text-[10px] uppercase text-muted hover:text-rust"
+                      >
+                        Remove
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              )}
+              {!isEditing && (
+                <div className="flex gap-1">
+                  {days.map((d) => {
+                    const iso = isoDate(d);
+                    const logged = loggedSet.has(`${h.id}:${iso}`);
+                    const isToday = iso === todayIso;
+                    return (
+                      <button
+                        key={iso}
+                        type="button"
+                        onClick={() => handleToggle(h.id, iso)}
+                        aria-label={`Toggle ${h.name} on ${iso}`}
+                        className="flex min-w-0 flex-1 flex-col items-center gap-1 rounded py-1"
+                      >
+                        <span
+                          className={`font-mono text-[9px] uppercase tracking-wide ${
+                            isToday ? "text-amber" : "text-muted"
+                          }`}
+                        >
+                          {d.toLocaleDateString(undefined, { weekday: "short" }).slice(0, 2)}
+                        </span>
+                        <span className={`checkbox-visual ${logged ? "checked" : ""}`} aria-hidden="true" />
+                        <span className="font-mono text-[9px] text-muted/70">{d.getDate()}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}

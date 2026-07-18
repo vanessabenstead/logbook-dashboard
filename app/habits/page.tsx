@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sql, type Habit, type HabitLog } from "@/lib/db";
 import HabitGrid from "@/components/HabitGrid";
 import HabitForm from "@/components/HabitForm";
+import GoalsSummary from "@/components/GoalsSummary";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,60 @@ export default async function HabitsPage({
     where hl.log_date >= ${isoDate(weekMonday)} and hl.log_date <= ${isoDate(weekSunday)}
   `) as HabitLog[];
 
+  // Goals always reflect the actual current week, even if you're browsing
+  // a past or future week in the grid below — reuse the fetch above if
+  // they're the same week, otherwise fetch separately.
+  const thisWeekSunday = new Date(thisWeekMonday);
+  thisWeekSunday.setDate(thisWeekMonday.getDate() + 6);
+  const currentWeekLogs = isCurrentWeek
+    ? logs
+    : ((await sql`
+        select hl.* from habit_logs hl
+        join habits h on h.id = hl.habit_id
+        where hl.log_date >= ${isoDate(thisWeekMonday)} and hl.log_date <= ${isoDate(thisWeekSunday)}
+      `) as HabitLog[]);
+
+  // Streaks look back further than the visible week — pull the last 60
+  // days per habit and count consecutive days ending today (or yesterday,
+  // so the streak doesn't look "broken" before today is even over).
+  const streakRows = (await sql`
+    select habit_id, log_date from habit_logs
+    where log_date >= (current_date - interval '60 days')
+    order by habit_id, log_date desc
+  `) as { habit_id: number; log_date: string | Date }[];
+
+  function normalizeDate(value: string | Date): string {
+    if (value instanceof Date) {
+      const y = value.getUTCFullYear();
+      const m = String(value.getUTCMonth() + 1).padStart(2, "0");
+      const d = String(value.getUTCDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+    return String(value).slice(0, 10);
+  }
+
+  const loggedDatesByHabit = new Map<number, Set<string>>();
+  for (const row of streakRows) {
+    const iso = normalizeDate(row.log_date);
+    if (!loggedDatesByHabit.has(row.habit_id)) loggedDatesByHabit.set(row.habit_id, new Set());
+    loggedDatesByHabit.get(row.habit_id)!.add(iso);
+  }
+
+  const streaks: Record<number, number> = {};
+  for (const h of habits) {
+    const set = loggedDatesByHabit.get(h.id) ?? new Set();
+    let streak = 0;
+    const cursor = new Date();
+    if (!set.has(isoDate(cursor))) {
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    while (set.has(isoDate(cursor))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    streaks[h.id] = streak;
+  }
+
   const today = new Date();
   const msPerDay = 1000 * 60 * 60 * 24;
   const daysToRace = Math.ceil((RACE_DATE.getTime() - today.getTime()) / msPerDay);
@@ -79,7 +134,7 @@ export default async function HabitsPage({
         </Link>
       </header>
 
-      <div className="entry-card px-5 py-6" style={{ ["--tick" as string]: "#c1554a" }}>
+      <div className="entry-card px-5 py-6" style={{ ["--tick" as string]: "#B5654A" }}>
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted">
           HYROX Melbourne
         </p>
@@ -90,6 +145,8 @@ export default async function HabitsPage({
           Race day: {RACE_DATE.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
         </p>
       </div>
+
+      <GoalsSummary habits={habits} logs={currentWeekLogs} />
 
       <HabitForm />
 
@@ -124,7 +181,7 @@ export default async function HabitsPage({
             </Link>
           </div>
         )}
-        <HabitGrid habits={habits} logs={logs} weekStart={isoDate(weekMonday)} />
+        <HabitGrid habits={habits} logs={logs} weekStart={isoDate(weekMonday)} streaks={streaks} />
       </div>
     </div>
   );

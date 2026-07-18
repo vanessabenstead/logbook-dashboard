@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * {
-  scrollbar-color: #3a4152 transparent;
+  scrollbar-color: #DDD1BE transparent;
 }
 
 body {
@@ -16,7 +16,7 @@ body {
       to bottom,
       transparent 0px,
       transparent 34px,
-      rgba(238, 232, 219, 0.025) 35px
+      rgba(63, 55, 46, 0.025) 35px
     );
 }
 
@@ -27,48 +27,51 @@ body {
 
 .entry-card {
   position: relative;
-  border: 1px solid #2a3140;
-  background: #1b212b;
-  border-radius: 4px;
-  transition: border-color 0.15s ease, transform 0.1s ease;
+  background: #F9F5EE;
+  border-radius: 20px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 10px 24px -10px rgba(138, 113, 89, 0.20),
+    0 2px 8px rgba(63, 55, 46, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
 }
 
 .entry-card:hover {
-  border-color: #3a4258;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 14px 28px -10px rgba(138, 113, 89, 0.28),
+    0 2px 8px rgba(63, 55, 46, 0.08);
 }
 
-.entry-card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  border-radius: 4px 0 0 4px;
-  background: var(--tick, #2a3140);
+.entry-card:active {
+  transform: scale(0.99);
 }
 
 .checkbox-visual {
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid #4b5468;
-  border-radius: 3px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #DDD1BE;
+  border-radius: 50%;
+  background: rgba(63, 55, 46, 0.02);
   display: inline-grid;
   place-content: center;
   flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .checkbox-visual.checked {
-  background: #4f9d91;
-  border-color: #4f9d91;
+  background: #6B7F5F;
+  border-color: #6B7F5F;
+  box-shadow: 0 0 0 4px rgba(107, 127, 95, 0.18), 0 2px 6px rgba(107, 127, 95, 0.45);
+  transform: scale(1.05);
 }
 
 .checkbox-visual.checked::after {
   content: "";
-  width: 5px;
-  height: 9px;
-  border: solid #14181f;
-  border-width: 0 2px 2px 0;
+  width: 7px;
+  height: 12px;
+  border: solid white;
+  border-width: 0 2.5px 2.5px 0;
   transform: rotate(45deg) translate(-1px, -1px);
 }
 

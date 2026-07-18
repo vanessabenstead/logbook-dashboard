@@ -1,31 +1,49 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import type { Task } from "@/lib/db";
 import { toggleTask, deleteTask } from "@/lib/actions";
+import { burstConfetti } from "@/lib/confetti";
 
 const PRIORITY_LABEL: Record<number, string> = { 1: "High", 2: "Medium", 3: "Low" };
 const PRIORITY_COLOR: Record<number, string> = {
-  1: "#c1554a",
-  2: "#e8a33d",
-  3: "#4f9d91",
+  1: "#B5654A",
+  2: "#8A7159",
+  3: "#6B7F5F",
 };
 
 export default function TaskItem({ task, index }: { task: Task; index: number }) {
-  const done = task.status === "done";
+  const [done, setDone] = useState(task.status === "done");
+  const [, startTransition] = useTransition();
   const overdue = !done && task.due_at && new Date(task.due_at) < new Date();
+
+  function handleToggle() {
+    const wasDone = done;
+    const next = !wasDone;
+    setDone(next);
+    if (next) burstConfetti();
+    startTransition(() => {
+      toggleTask(task.id, wasDone);
+    });
+  }
 
   return (
     <div
       className="entry-card flex items-start gap-3 px-4 py-3"
-      style={{ ["--tick" as string]: overdue ? "#c1554a" : PRIORITY_COLOR[task.priority] }}
+      style={{ ["--tick" as string]: overdue ? "#B5654A" : PRIORITY_COLOR[task.priority] }}
     >
       <span className="log-number pt-1 text-[11px] text-muted">
         {String(index).padStart(2, "0")}
       </span>
 
-      <form action={toggleTask.bind(null, task.id, done)} className="pt-1">
-        <button type="submit" aria-label={done ? "Mark as open" : "Mark as done"}>
-          <span className={`checkbox-visual ${done ? "checked" : ""}`} aria-hidden="true" />
-        </button>
-      </form>
+      <button
+        type="button"
+        onClick={handleToggle}
+        className="pt-1"
+        aria-label={done ? "Mark as open" : "Mark as done"}
+      >
+        <span className={`checkbox-visual ${done ? "checked" : ""}`} aria-hidden="true" />
+      </button>
 
       <div className="min-w-0 flex-1">
         <p className={`text-sm ${done ? "text-muted line-through" : "text-paper"}`}>

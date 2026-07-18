@@ -3,7 +3,7 @@ import { TASK_CATEGORIES } from "@/lib/db";
 
 export default function QuickAddTasks({ defaultCategory }: { defaultCategory?: string }) {
   return (
-    <details className="entry-card px-4 py-4" style={{ ["--tick" as string]: "#e8a33d" }}>
+    <details className="entry-card px-4 py-4" style={{ ["--tick" as string]: "#8A7159" }}>
       <summary className="cursor-pointer font-mono text-[10px] uppercase tracking-[0.15em] text-muted">
         Quick-add a checklist (paste multiple lines)
       </summary>

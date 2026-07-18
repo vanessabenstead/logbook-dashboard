@@ -36,6 +36,9 @@ create table if not exists habits (
   created_at  timestamptz not null default now()
 );
 
+-- How many days per week this habit is meant to happen — powers the Goals section.
+alter table habits add column if not exists weekly_target smallint not null default 7;
+
 create table if not exists habit_logs (
   id          bigserial primary key,
   habit_id    bigint not null references habits(id) on delete cascade,

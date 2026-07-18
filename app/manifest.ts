@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "A daily log for tasks, habits, and notes.",
     start_url: "/",
     display: "standalone",
-    background_color: "#14181f",
-    theme_color: "#e8a33d",
+    background_color: "#EDE6DC",
+    theme_color: "#8A7159",
     icons: [
       {
         src: "/icon-192.png",
